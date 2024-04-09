@@ -19,5 +19,7 @@ public partial class ImageResizePage : ContentPage
         // TODO: save image with new quality and size
 
         await DisplayAlert("Bild speichern", $"save image", "OK");
+
+        await Navigation.PopAsync();
     }
 }
