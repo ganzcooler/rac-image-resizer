@@ -8,24 +8,6 @@
             Padding="30,0"
             Spacing="25">
 
-            <Image x:Name="selectedImage"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Fill"/>
-
-            <Label Text="Auflösung" />
-            <Slider x:Name="sld_size"
-                    HorizontalOptions="Fill"
-                    Minimum="0"
-                    Maximum="100"
-                    Value="40" />
-                
-            <Label Text="Qualität" />
-            <Slider x:Name="sld_quality"
-                    HorizontalOptions="Fill"
-                    Minimum="0"
-                    Maximum="1"
-                    Value="0.85" />
-
             <Button Text="Bild auswählen..."
                     Clicked="ChooseImage"
                     HorizontalOptions="Fill" />

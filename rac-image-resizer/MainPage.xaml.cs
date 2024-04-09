@@ -22,7 +22,7 @@
                 {
                     var stream = await result.OpenReadAsync();
 
-                    selectedImage.Source = ImageSource.FromStream(() => stream);
+                    await Navigation.PushAsync(new ImageResizePage(imageSource: ImageSource.FromStream(() => stream)));
                 }
             }
             catch (Exception ex)
