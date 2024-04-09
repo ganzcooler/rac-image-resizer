@@ -13,6 +13,8 @@
 		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
 		<!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
 
+		<WindowsPackageType>None</WindowsPackageType>
+
 		<OutputType>Exe</OutputType>
 		<RootNamespace>rac_image_resizer</RootNamespace>
 		<UseMaui>true</UseMaui>

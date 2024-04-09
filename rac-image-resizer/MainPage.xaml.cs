@@ -2,23 +2,33 @@
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
-
         public MainPage()
         {
             InitializeComponent();
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        private async void ChooseImage(object sender, EventArgs e)
         {
-            count++;
+            try
+            {
+                var options = new PickOptions
+                {
+                    FileTypes = FilePickerFileType.Images,
+                    PickerTitle = "Select a JPG file"
+                };
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
+                var result = await FilePicker.PickAsync(options);
+                if (result != null)
+                {
+                    var stream = await result.OpenReadAsync();
 
-            SemanticScreenReader.Announce(CounterBtn.Text);
+                    selectedImage.Source = ImageSource.FromStream(() => stream);
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"An error occurred: {ex.Message}", "OK");
+            }
         }
     }
 
