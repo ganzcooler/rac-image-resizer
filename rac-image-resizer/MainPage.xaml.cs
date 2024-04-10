@@ -1,4 +1,6 @@
-﻿namespace rac_image_resizer
+﻿using Microsoft.Maui.Graphics.Platform;
+
+namespace rac_image_resizer
 {
     public partial class MainPage : ContentPage
     {
@@ -22,7 +24,7 @@
                 {
                     var stream = await result.OpenReadAsync();
 
-                    await Navigation.PushAsync(new ImageResizePage(imageSource: ImageSource.FromStream(() => stream)));
+                    await Navigation.PushAsync(new ImageResizePage(stream));
                 }
             }
             catch (Exception ex)
