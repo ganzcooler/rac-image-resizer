@@ -20,9 +20,9 @@
                 var result = await FilePicker.PickAsync(options);
                 if (result != null)
                 {
-                    var stream = await result.OpenReadAsync();
+                    //var stream = await result.OpenReadAsync();
 
-                    await Navigation.PushAsync(new ImageResizePage(stream));
+                    await Navigation.PushAsync(new ImageResizePage(result));
                 }
             }
             catch (Exception ex)

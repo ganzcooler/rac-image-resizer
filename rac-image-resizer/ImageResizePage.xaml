@@ -32,7 +32,7 @@
 
             <Button Text="Bild speichern"
                     HorizontalOptions="Fill"
-                    Clicked="SaveImage" />
+                    Clicked="BtnSaveImage" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

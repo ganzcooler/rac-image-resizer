@@ -1,44 +1,32 @@
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using Image = System.Drawing.Image;
-using ImageFormat = System.Drawing.Imaging.ImageFormat;
+using SkiaSharp;
 
 namespace rac_image_resizer;
 
 public partial class ImageResizePage : ContentPage
 {
-    public Stream SourceStream { get; set; }
-    public Image OriginalImage { get; set; }
+    public FileResult InputFileResult{ get; set; }
 
-    public ImageResizePage(Stream stream)
+    public ImageResizePage(FileResult fileResult)
 	{
 		InitializeComponent();
 
-        selectedImage.Source = ImageSource.FromStream(() => stream);
+        InputFileResult = fileResult;
 
-        SourceStream = stream;
-        OriginalImage = new Bitmap(Bitmap.FromStream(stream));
+        // input image to XAML
+        selectedImage.Source = ImageSource.FromFile(fileResult.FullPath);
     }
 
-    private async void SaveImage(object sender, EventArgs e)
+    private async void BtnSaveImage(object sender, EventArgs e)
     {
-        long quality = 10; // 0 - 100
-        string outputPath = "rac3.jpg";
+        int quality = 20; // 0 - 100 (100 is best)
+        string inputPath = InputFileResult.FullPath;
+        string outputPath = InputFileResult.FullPath + "_compressed.jpg";
+        int targetDim = 500;
 
         try
         {
-            // set quality parameter
-            ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
-            Encoder encoder = Encoder.Quality;
-            EncoderParameters encoderParameters = new EncoderParameters(1);
-            EncoderParameter encoderParameter = new EncoderParameter(encoder, 10L);
-            encoderParameters.Param[0] = encoderParameter;
-
-            var newImage = new Bitmap(OriginalImage);
-            newImage = ResizeImage(newImage, 500, 300);
-
-            newImage.Save(outputPath, jpgEncoder, encoderParameters);
+            var newImage = SetRes(inputPath, targetDim);
+            SaveImage(newImage, outputPath, quality);
         }
         catch (Exception ex)
         {
@@ -50,48 +38,36 @@ public partial class ImageResizePage : ContentPage
         }
     }
 
-    /// <summary>
-    /// Resize the image to the specified width and height.
-    /// </summary>
-    /// <param name="image">The image to resize.</param>
-    /// <param name="width">The width to resize to.</param>
-    /// <param name="height">The height to resize to.</param>
-    /// <returns>The resized image.</returns>
-    private static Bitmap ResizeImage(Image image, int width, int height)
+    private static void SaveImage(SKBitmap image, string outputFilePath, int jpegQuality)
     {
-        var destRect = new Rectangle(0, 0, width, height);
-        var destImage = new Bitmap(width, height);
-
-        destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
-
-        using (var graphics = Graphics.FromImage(destImage))
+        using (image)
         {
-            graphics.CompositingMode = CompositingMode.SourceCopy;
-            graphics.CompositingQuality = CompositingQuality.HighQuality;
-            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            graphics.SmoothingMode = SmoothingMode.HighQuality;
-            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-
-            using (var wrapMode = new ImageAttributes())
+            // Create output stream
+            using (var outputStream = File.Create(outputFilePath))
             {
-                wrapMode.SetWrapMode(WrapMode.TileFlipXY);
-                graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+                // Save the resized image as JPEG with specified quality
+                image.Encode(outputStream, SKEncodedImageFormat.Jpeg, jpegQuality);
             }
         }
-
-        return destImage;
     }
 
-    private ImageCodecInfo GetEncoder(ImageFormat format)
+    private static SKBitmap SetRes(string inputFilePath, int targetDimension)
     {
-        ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
-        foreach (ImageCodecInfo codec in codecs)
+        using (var inputStream = File.OpenRead(inputFilePath))
         {
-            if (codec.FormatID == format.Guid)
+            using (var originalBitmap = SKBitmap.Decode(inputStream))
             {
-                return codec;
+                // Calculate scaling factor
+                float scaleWidth = (float)targetDimension / originalBitmap.Width;
+                float scaleHeight = (float)targetDimension / originalBitmap.Height;
+                float scale = Math.Min(scaleWidth, scaleHeight);
+
+                // Calculate new dimensions
+                int newWidth = (int)(originalBitmap.Width * scale);
+                int newHeight = (int)(originalBitmap.Height * scale);
+
+                return originalBitmap.Resize(new SKImageInfo(newWidth, newHeight), SKFilterQuality.Medium);
             }
         }
-        return null;
     }
 }
