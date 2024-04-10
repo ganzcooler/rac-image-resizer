@@ -1,52 +1,97 @@
-using Microsoft.Maui.Graphics.Platform;
-using IImage = Microsoft.Maui.Graphics.IImage;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using Image = System.Drawing.Image;
+using ImageFormat = System.Drawing.Imaging.ImageFormat;
 
 namespace rac_image_resizer;
 
 public partial class ImageResizePage : ContentPage
 {
     public Stream SourceStream { get; set; }
-    public IImage OriginalImage { get; set; }
+    public Image OriginalImage { get; set; }
 
     public ImageResizePage(Stream stream)
 	{
 		InitializeComponent();
 
-        SourceStream = stream;
-        OriginalImage = PlatformImage.FromStream(stream);
-
         selectedImage.Source = ImageSource.FromStream(() => stream);
+
+        SourceStream = stream;
+        OriginalImage = new Bitmap(Bitmap.FromStream(stream));
     }
 
     private async void SaveImage(object sender, EventArgs e)
     {
-        float quality = 0.2f; // 0 - 100
+        long quality = 10; // 0 - 100
         string outputPath = "rac3.jpg";
 
         try
         {
-            // resize image
-            IImage newImage = OriginalImage.Resize(200f, 200f, ResizeMode.Fit);
+            // set quality parameter
+            ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+            Encoder encoder = Encoder.Quality;
+            EncoderParameters encoderParameters = new EncoderParameters(1);
+            EncoderParameter encoderParameter = new EncoderParameter(encoder, 10L);
+            encoderParameters.Param[0] = encoderParameter;
 
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                // save image with reduced quality
-                await newImage.SaveAsync(memoryStream, format: ImageFormat.Jpeg, quality: quality);
+            var newImage = new Bitmap(OriginalImage);
+            newImage = ResizeImage(newImage, 500, 300);
 
-                string filePath = outputPath;
-                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
-                {
-                    memoryStream.Seek(0, SeekOrigin.Begin); // Setze den Stream zurück auf den Anfang
-                    memoryStream.CopyTo(fileStream); // Kopiere den Inhalt des MemoryStreams in den FileStream
-                }
-            }
-
+            newImage.Save(outputPath, jpgEncoder, encoderParameters);
         }
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"Error: {ex.ToString}:{ex.Message}", "OK");
         }
+        finally
+        {
+            await Navigation.PopAsync();
+        }
+    }
 
-        await Navigation.PopAsync();
+    /// <summary>
+    /// Resize the image to the specified width and height.
+    /// </summary>
+    /// <param name="image">The image to resize.</param>
+    /// <param name="width">The width to resize to.</param>
+    /// <param name="height">The height to resize to.</param>
+    /// <returns>The resized image.</returns>
+    private static Bitmap ResizeImage(Image image, int width, int height)
+    {
+        var destRect = new Rectangle(0, 0, width, height);
+        var destImage = new Bitmap(width, height);
+
+        destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+        using (var graphics = Graphics.FromImage(destImage))
+        {
+            graphics.CompositingMode = CompositingMode.SourceCopy;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            graphics.SmoothingMode = SmoothingMode.HighQuality;
+            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            using (var wrapMode = new ImageAttributes())
+            {
+                wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+            }
+        }
+
+        return destImage;
+    }
+
+    private ImageCodecInfo GetEncoder(ImageFormat format)
+    {
+        ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
+        foreach (ImageCodecInfo codec in codecs)
+        {
+            if (codec.FormatID == format.Guid)
+            {
+                return codec;
+            }
+        }
+        return null;
     }
 }

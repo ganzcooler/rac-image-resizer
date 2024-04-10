@@ -1,6 +1,4 @@
-﻿using Microsoft.Maui.Graphics.Platform;
-
-namespace rac_image_resizer
+﻿namespace rac_image_resizer
 {
     public partial class MainPage : ContentPage
     {
