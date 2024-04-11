@@ -3,19 +3,35 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="rac_image_resizer.ImageResizePage"
              Title="ImageResizePage">
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25">
-            
-            <Label Text="Bild komprimieren"
-                   VerticalOptions="Center" 
-                   HorizontalOptions="Center" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout>
+                <!-- TODO: Bildervorschau hier rein -->
+                <Image x:Name="selectedImage"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Fill" />
+                <Label Text="lorem ipsum" />
+                <Label Text="lorem ipsum" />
+                <Label Text="lorem ipsum" />
+                <Label Text="lorem ipsum" />
+                <Label Text="lorem ipsum" />
+                <Label Text="lorem ipsum" />
+                <Label Text="lorem ipsum" />
+                <Label Text="lorem ipsum" />
+                <Label Text="lorem ipsum" />
+                <Label Text="lorem ipsum" />
+            </VerticalStackLayout>
+        </ScrollView>
 
-            <Image x:Name="selectedImage"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Fill" />
-
+        <VerticalStackLayout Grid.Row="1"
+                             Padding="10"
+                             HorizontalOptions="FillAndExpand"
+                             VerticalOptions="End">
             <Label Text="Auflösung" />
             <Slider x:Name="sld_size"
                     HorizontalOptions="Fill"
@@ -34,5 +50,6 @@
                     HorizontalOptions="Fill"
                     Clicked="BtnSaveImage" />
         </VerticalStackLayout>
-    </ScrollView>
+                     
+    </Grid>
 </ContentPage>
