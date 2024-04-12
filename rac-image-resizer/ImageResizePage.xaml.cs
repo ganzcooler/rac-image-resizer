@@ -25,6 +25,7 @@ public partial class ImageResizePage : ContentPage
 
         try
         {
+            await CheckSetPermissions();
             var newImage = SetRes(inputPath, targetDim);
             SaveImage(newImage, outputPath, quality);
         }
@@ -35,6 +36,15 @@ public partial class ImageResizePage : ContentPage
         finally
         {
             await Navigation.PopAsync();
+        }
+    }
+
+    private async Task CheckSetPermissions()
+    {
+        if ((await Permissions.RequestAsync<Permissions.StorageRead>() != PermissionStatus.Granted) &&
+            (await Permissions.RequestAsync<Permissions.StorageWrite>() != PermissionStatus.Granted))
+        {
+            await DisplayAlert("Berechtigung erteilen", "Um Bilder speichern zu können müssen entsprechende Lese-/Schreibberechtigungen erteilt sein.", "OK");
         }
     }
 
