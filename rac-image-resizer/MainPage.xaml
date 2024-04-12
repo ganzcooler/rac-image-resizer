@@ -4,14 +4,13 @@
              x:Class="rac_image_resizer.MainPage">
 
     <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25">
-
-            <Button Text="Bild auswählen..."
-                    Clicked="ChooseImage"
-                    HorizontalOptions="Fill" />
-        </VerticalStackLayout>
+        <Button
+            Text="Klicken um Bild(er) auszuwählen..."
+            TextColor="White"
+            Background="Transparent"
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill"
+            Clicked="ChooseImage" />
     </ScrollView>
 
 </ContentPage>
