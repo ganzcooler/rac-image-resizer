@@ -41,8 +41,11 @@ public partial class ImageResizePage : ContentPage
 
     private async Task CheckSetPermissions()
     {
-        if ((await Permissions.RequestAsync<Permissions.StorageRead>() != PermissionStatus.Granted) &&
-            (await Permissions.RequestAsync<Permissions.StorageWrite>() != PermissionStatus.Granted))
+        var readStatus = await Permissions.RequestAsync<Permissions.StorageRead>();
+        var writeStatus = await Permissions.RequestAsync<Permissions.StorageWrite>();
+
+        if ((readStatus != PermissionStatus.Granted) &&
+            (writeStatus != PermissionStatus.Granted))
         {
             await DisplayAlert("Berechtigung erteilen", "Um Bilder speichern zu können müssen entsprechende Lese-/Schreibberechtigungen erteilt sein.", "OK");
         }
